@@ -12,7 +12,7 @@ export function getScope(context: ParseTree, symbolTable: SymbolTable) {
     if(!context) {
         return undefined;
     }
-    const scope = symbolTable.symbolWithContext(context);
+    const scope = symbolTable.symbolWithContextSync(context);
     if(scope) {
         return scope;
     } else {
@@ -21,7 +21,7 @@ export function getScope(context: ParseTree, symbolTable: SymbolTable) {
 }
 
 export function getAllSymbolsOfType<T extends Symbol>(scope: ScopedSymbol, type: new (...args: any[]) => T): T[] {
-    let symbols = scope.getSymbolsOfType(type);
+    let symbols = scope.getAllSymbolsSync(type, true);
     let parent = scope.parent;
     while(parent && !(parent instanceof ScopedSymbol)) {
         parent = parent.parent;
@@ -39,7 +39,7 @@ function suggestVariables(symbolTable: SymbolTable, position: TokenPosition) {
     if(scope instanceof ScopedSymbol) { //Local scope
         symbols = getAllSymbolsOfType(scope, VariableSymbol);
     } else { //Global scope
-        symbols = symbolTable.getSymbolsOfType(VariableSymbol);
+        symbols = symbolTable.getAllSymbolsSync(VariableSymbol, false);
     }
     let variable = position.context;
     while(!(variable instanceof VariableReadContext) && variable.parent) {
