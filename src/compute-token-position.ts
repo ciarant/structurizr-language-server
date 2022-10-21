@@ -16,7 +16,7 @@ export function computeTokenPosition(
     }
 }
 
-function positionOfToken(token: Token, text: string, caretPosition: CaretPosition, identifierTokenTypes: number[], parseTree: ParseTree) {
+function positionOfToken(token: Token, text: string, caretPosition: CaretPosition, identifierTokenTypes: number[], parseTree: ParseTree): TokenPosition {
     let start = token.charPositionInLine;
     let stop = token.charPositionInLine + text.length;
     if (token.line == caretPosition.line && start <= caretPosition.column && stop >= caretPosition.column) {
@@ -35,14 +35,14 @@ function positionOfToken(token: Token, text: string, caretPosition: CaretPositio
 }
 
 function computeTokenPositionOfTerminal(
-    parseTree: TerminalNode, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[]) {
+    parseTree: TerminalNode, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[]): TokenPosition {
     let token = parseTree.symbol;
     let text = parseTree.text;
     return positionOfToken(token, text, caretPosition, identifierTokenTypes, parseTree);
 }
 
 function computeTokenPositionOfChildNode(
-    parseTree: ParserRuleContext, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[]) {
+    parseTree: ParserRuleContext, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[]): TokenPosition {
     if((parseTree.start && parseTree.start.line > caretPosition.line) ||
         (parseTree.stop && parseTree.stop.line < caretPosition.line)) {
         return undefined;

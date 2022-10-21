@@ -8,7 +8,7 @@ import {Symbol} from "antlr4-c3/out/src/SymbolTable";
 import {CaretPosition, ComputeTokenPositionFunction, TokenPosition} from "./types";
 import * as fuzzysort from 'fuzzysort';
 
-export function getScope(context: ParseTree, symbolTable: SymbolTable) {
+export function getScope(context: ParseTree, symbolTable: SymbolTable): Symbol {
     if(!context) {
         return undefined;
     }
@@ -32,7 +32,7 @@ export function getAllSymbolsOfType<T extends Symbol>(scope: ScopedSymbol, type:
     return symbols;
 }
 
-function suggestVariables(symbolTable: SymbolTable, position: TokenPosition) {
+function suggestVariables(symbolTable: SymbolTable, position: TokenPosition): string[] {
     const context = position.context;
     const scope = getScope(context, symbolTable);
     let symbols: Symbol[];
@@ -48,7 +48,7 @@ function suggestVariables(symbolTable: SymbolTable, position: TokenPosition) {
     return filterTokens(variable ? position.text : '', symbols.map(s => s.name));
 }
 
-export function filterTokens_startsWith(text: string, candidates: string[]) {
+export function filterTokens_startsWith(text: string, candidates: string[]): string[] {
     if(text.trim().length == 0) {
         return candidates;
     } else {
@@ -56,7 +56,7 @@ export function filterTokens_startsWith(text: string, candidates: string[]) {
     }
 }
 
-export function filterTokens_fuzzySearch(text: string, candidates: string[]) {
+export function filterTokens_fuzzySearch(text: string, candidates: string[]): string[] {
     if(text.trim().length == 0) {
         return candidates;
     } else {
@@ -70,7 +70,7 @@ export function setTokenMatcher(fn) {
 }
 
 export function getSuggestionsForParseTree(
-    parser: KotlinParser, parseTree: ParseTree, symbolTableFn: () => SymbolTable, position: TokenPosition) {
+    parser: KotlinParser, parseTree: ParseTree, symbolTableFn: () => SymbolTable, position: TokenPosition): string[] {
     let core = new CodeCompletionCore(parser);
     // Luckily, the Kotlin lexer defines all keywords and identifiers after operators,
     // so we can simply exclude the first non-keyword tokens
@@ -86,7 +86,7 @@ export function getSuggestionsForParseTree(
     core.preferredRules = new Set([KotlinParser.RULE_variableRead, KotlinParser.RULE_suggestArgument]);
     let candidates = core.collectCandidates(position.index);
 
-    let completions = [];
+    let completions: string[] = [];
     if (candidates.rules.has(KotlinParser.RULE_variableRead) ||
         candidates.rules.has(KotlinParser.RULE_suggestArgument)) {
         completions.push(...suggestVariables(symbolTableFn(), position));
@@ -115,7 +115,7 @@ export function getSuggestionsForParseTree(
 }
 
 export function getSuggestions(
-    code: string, caretPosition: CaretPosition, computeTokenPosition: ComputeTokenPositionFunction) {
+    code: string, caretPosition: CaretPosition, computeTokenPosition: ComputeTokenPositionFunction): string[] {
     let input = CharStreams.fromString(code);
     let lexer = new KotlinLexer(input);
     let tokenStream = new CommonTokenStream(lexer);
