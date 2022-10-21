@@ -1,9 +1,11 @@
 import {KotlinLexer} from "./parser/KotlinLexer";
+import {StructurizrLexer} from "./parser/StructurizrLexer";
 import {CharStreams, CommonTokenStream} from "antlr4ts";
 import {KotlinParser, VariableReadContext} from "./parser/KotlinParser";
+import {StructurizrParser} from "./parser/StructurizrParser";
 import {CodeCompletionCore, ScopedSymbol, SymbolTable, VariableSymbol} from "antlr4-c3";
 import {ParseTree, TerminalNode} from "antlr4ts/tree";
-import {SymbolTableVisitor} from "./symbol-table-visitor";
+import {SymbolTableVisitorK} from "./symbol-table-visitor";
 import {Symbol} from "antlr4-c3/out/src/SymbolTable";
 import {CaretPosition, ComputeTokenPositionFunction, TokenPosition} from "./types";
 
@@ -61,6 +63,42 @@ export function setTokenMatcher(fn) {
 }
 
 export function getSuggestionsForParseTree(
+    parser: StructurizrParser, parseTree: ParseTree, symbolTableFn: () => SymbolTable, position: TokenPosition): string[] {
+    const core = new CodeCompletionCore(parser);
+    let ignored: number[] = [];
+    ignored.push(StructurizrParser.NL);
+    // ignored.push(StructurizrParser.LBRACE, KotlinParser.QUOTE_CLOSE, KotlinParser.TRIPLE_QUOTE_OPEN)
+    // ignored.push(KotlinParser.LabelDefinition, KotlinParser.LabelReference); //We don't handle labels for simplicity
+    core.ignoredTokens = new Set(ignored);
+    // core.preferredRules = new Set([KotlinParser.RULE_variableRead, KotlinParser.RULE_suggestArgument]);
+
+    const candidates = core.collectCandidates(position.index);
+    const completions: string[] = [];
+    const tokens: string[] = [];
+
+    candidates.tokens.forEach((_, k) => {
+        if (k == StructurizrParser.ID) {
+            //Skip, we’ve already handled it above
+        // } else if (k == KotlinParser.NOT_IN) {
+        //     tokens.push("!in");
+        // } else if (k == KotlinParser.NOT_IS) {
+        //     tokens.push("!is");
+        } else {
+            const symbolicName = parser.vocabulary.getSymbolicName(k);
+            if (symbolicName) {
+                tokens.push(symbolicName.toLowerCase());
+            }
+        }
+    });
+    const isIgnoredToken =
+        position.context instanceof TerminalNode &&
+        ignored.indexOf(position.context.symbol.type) >= 0;
+    const textToMatch = isIgnoredToken ? '' : position.text;
+    completions.push(...filterTokens(textToMatch, tokens));
+    return completions;
+}
+
+export function getSuggestionsForParseTreeK(
     parser: KotlinParser, parseTree: ParseTree, symbolTableFn: () => SymbolTable, position: TokenPosition): string[] {
     let core = new CodeCompletionCore(parser);
     // Luckily, the Kotlin lexer defines all keywords and identifiers after operators,
@@ -82,7 +120,7 @@ export function getSuggestionsForParseTree(
         candidates.rules.has(KotlinParser.RULE_suggestArgument)) {
         completions.push(...suggestVariables(symbolTableFn(), position));
     }
-    let tokens = [];
+    let tokens: string[] = [];
     candidates.tokens.forEach((_, k) => {
         if (k == KotlinParser.Identifier) {
             //Skip, we’ve already handled it above
@@ -108,6 +146,23 @@ export function getSuggestionsForParseTree(
 export function getSuggestions(
     code: string, caretPosition: CaretPosition, computeTokenPosition: ComputeTokenPositionFunction): string[] {
     let input = CharStreams.fromString(code);
+    let lexer = new StructurizrLexer(input);
+    let tokenStream = new CommonTokenStream(lexer);
+    let parser = new StructurizrParser(tokenStream);
+
+    let parseTree = parser.structurizrFile();
+
+    let position = computeTokenPosition(parseTree, tokenStream, caretPosition);
+    if(!position) {
+        return [];
+    }
+    return getSuggestionsForParseTree(
+        parser, parseTree, () => new SymbolTableVisitorK().visit(parseTree), position);
+}
+
+export function getSuggestionsK(
+    code: string, caretPosition: CaretPosition, computeTokenPosition: ComputeTokenPositionFunction): string[] {
+    let input = CharStreams.fromString(code);
     let lexer = new KotlinLexer(input);
     let tokenStream = new CommonTokenStream(lexer);
     let parser = new KotlinParser(tokenStream);
@@ -118,6 +173,6 @@ export function getSuggestions(
     if(!position) {
         return [];
     }
-    return getSuggestionsForParseTree(
-        parser, parseTree, () => new SymbolTableVisitor().visit(parseTree), position);
+    return getSuggestionsForParseTreeK(
+        parser, parseTree, () => new SymbolTableVisitorK().visit(parseTree), position);
 }

@@ -1,6 +1,5 @@
 import {expect} from "chai";
-
-import {computeTokenPosition, getSuggestions, setTokenMatcher, filterTokens} from "../src";
+import {computeTokenPosition, getSuggestionsK} from "../src";
 import {it} from "mocha";
 
 const localVariablesSuite = function() {
@@ -11,7 +10,7 @@ const localVariablesSuite = function() {
     val v = 1
     val z = 
 }`;
-            let suggestions = getSuggestions(code, { line: 3, column: 13 }, computeTokenPosition);
+            let suggestions = getSuggestionsK(code, { line: 3, column: 13 }, computeTokenPosition);
             expect(suggestions.indexOf("v")).to.not.equal(-1);
             expect(suggestions.indexOf("some random name")).to.equal(-1);
         });
@@ -27,7 +26,7 @@ fun test2() {
     val v = 1
     val z = 
 }`;
-            let suggestions = getSuggestions(code, { line: 7, column: 13 }, computeTokenPosition);
+            let suggestions = getSuggestionsK(code, { line: 7, column: 13 }, computeTokenPosition);
             expect(suggestions.indexOf("v")).to.not.equal(-1);
             expect(suggestions.indexOf("k")).to.equal(-1);
         });
@@ -40,7 +39,7 @@ fun test2() {
     val anotherVariable = 2
     val z = so
 }`;
-            let suggestions = getSuggestions(code, { line: 4, column: 14 }, computeTokenPosition);
+            let suggestions = getSuggestionsK(code, { line: 4, column: 14 }, computeTokenPosition);
             expect(suggestions.indexOf("someVariable")).to.not.equal(-1);
             expect(suggestions.indexOf("anotherVariable")).to.equal(-1);
         });

@@ -9,7 +9,7 @@ parser grammar StructurizrParser;
 options { tokenVocab=StructurizrLexer; }
 
 structurizrFile
-    : workspaceDeclaration EOF
+    : NL* workspaceDeclaration EOF
     ;
 
 workspaceDeclaration

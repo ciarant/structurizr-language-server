@@ -2,11 +2,12 @@
 node_modules/
 
 # ANTLR4 generated parser
-src/parser
-*.tokens
+src/parser/*
+!src/parser/*.g4
 
 # Build output
 out
-gen
 
+# IDE configuration
 .idea
+

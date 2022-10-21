@@ -1,8 +1,6 @@
 import {expect} from "chai";
-
 import {CharStreams, CommonTokenStream} from "antlr4ts";
-import {KotlinLexer} from "../src/parser/KotlinLexer";
-import {KotlinParser} from "../src/parser/KotlinParser";
+import {KotlinLexer, KotlinParser} from "../src";
 
 describe('variableRead rule refactoring', function() {
     it("parses variables",
@@ -70,7 +68,7 @@ describe('variableRead rule refactoring', function() {
             let lexer = new KotlinLexer(input);
             let parser = new KotlinParser(new CommonTokenStream(lexer));
 
-            const tree = parser.expression();
+            parser.expression();
             expect(parser.numberOfSyntaxErrors).to.equal(0);
             expect(input.index).to.equal(input.size);
         });
