@@ -3,7 +3,10 @@ node_modules/
 
 # ANTLR4 generated parser
 src/parser
+*.tokens
 
 # Build output
 out
 gen
+
+.idea

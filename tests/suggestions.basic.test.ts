@@ -1,6 +1,6 @@
 import {expect} from "chai";
 
-import { computeTokenPosition, getSuggestions, setTokenMatcher, filterTokens, filterTokens_fuzzySearch } from "../src";
+import { computeTokenPosition, getSuggestions, setTokenMatcher, filterTokens } from "../src";
 
 const suite = function() {
     it("are suggested",
@@ -26,9 +26,3 @@ const suite = function() {
 };
 
 describe('Keywords', suite);
-describe('Keywords w/fuzzy completion', function() {
-    let oldMatcher = filterTokens;
-    beforeEach(() => setTokenMatcher(filterTokens_fuzzySearch));
-    suite();
-    afterEach(() => setTokenMatcher(oldMatcher));
-});

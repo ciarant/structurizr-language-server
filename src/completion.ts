@@ -6,7 +6,6 @@ import {ParseTree, TerminalNode} from "antlr4ts/tree";
 import {SymbolTableVisitor} from "./symbol-table-visitor";
 import {Symbol} from "antlr4-c3/out/src/SymbolTable";
 import {CaretPosition, ComputeTokenPositionFunction, TokenPosition} from "./types";
-import * as fuzzysort from 'fuzzysort';
 
 export function getScope(context: ParseTree, symbolTable: SymbolTable): Symbol {
     if(!context) {
@@ -53,14 +52,6 @@ export function filterTokens_startsWith(text: string, candidates: string[]): str
         return candidates;
     } else {
         return candidates.filter(c => c.toLowerCase().startsWith(text.toLowerCase()));
-    }
-}
-
-export function filterTokens_fuzzySearch(text: string, candidates: string[]): string[] {
-    if(text.trim().length == 0) {
-        return candidates;
-    } else {
-        return fuzzysort.go(text, candidates).map(r => r.target);
     }
 }
 
