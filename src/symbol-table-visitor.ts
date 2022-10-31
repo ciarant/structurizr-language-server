@@ -1,9 +1,24 @@
 import {KotlinParserVisitor} from "./parser/KotlinParserVisitor";
+import {StructurizrParserVisitor} from "./parser/StructurizrParserVisitor";
 import {RoutineSymbol, ScopedSymbol, SymbolTable, VariableSymbol} from "antlr4-c3";
 import {AbstractParseTreeVisitor, ParseTree} from "antlr4ts/tree";
 import {FunctionDeclarationContext, VariableDeclarationContext} from "./parser/KotlinParser";
+import {WorkspaceDeclarationContext, ModelDeclarationContext} from "./parser/StructurizrParser";
 
-export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements KotlinParserVisitor<SymbolTable> {
+export class SymbolTableVisitor1 extends AbstractParseTreeVisitor<SymbolTable> implements StructurizrParserVisitor<SymbolTable> {
+    constructor(
+        protected readonly symbolTable = new SymbolTable("", {}),
+        protected scope = symbolTable.addNewSymbolOfType(ScopedSymbol, undefined)) {
+        super();
+    }
+
+    protected defaultResult(): SymbolTable {
+        return this.symbolTable;
+    }
+
+}
+
+export class SymbolTableVisitorK extends AbstractParseTreeVisitor<SymbolTable> implements KotlinParserVisitor<SymbolTable> {
     constructor(
         protected readonly symbolTable = new SymbolTable("", {}),
         protected scope = symbolTable.addNewSymbolOfType(ScopedSymbol, undefined)) {

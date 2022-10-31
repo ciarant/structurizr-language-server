@@ -4,3 +4,5 @@ export * from './types';
 export * from './symbol-table-visitor';
 export * from './parser/KotlinLexer';
 export * from './parser/KotlinParser';
+export * from './parser/StructurizrLexer';
+export * from './parser/StructurizrParser';
